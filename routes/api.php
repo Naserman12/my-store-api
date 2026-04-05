@@ -61,10 +61,13 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class,'logout']);
         Route::get('/user', [AuthController::class,'user']);
     });
+    // My orders routes (protected by auth:sanctum middleware)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-orders', [OrderController::class,'myOrders']);
     Route::get('/my-orders/{id}', [OrderController::class,'show']);
 
 });
-
+// checkout route
+Route::post('/checkout',[OrderController::class,'checkout'])
+    ->middleware('auth:sanctum');
 });
