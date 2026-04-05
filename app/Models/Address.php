@@ -14,4 +14,8 @@ class Address extends Model
     'postal_code',
     'phone'
 ];
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
 }

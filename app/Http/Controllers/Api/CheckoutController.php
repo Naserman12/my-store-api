@@ -19,7 +19,6 @@ class CheckoutController extends Controller
                     $request->user()->id
                 )->first();
             }
-            
             $sessionId = $request->header('X-Session-ID');
             if (!$sessionId) {
                 return null;

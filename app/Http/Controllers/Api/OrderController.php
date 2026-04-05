@@ -19,6 +19,7 @@ public function checkout(Request $request)
     $user = $request->user();
 
     $data = $request->validate([
+        'address_id' => 'nullable|exists:addresses,id',
         'customer_name' => 'required',
         'customer_phone' => 'nullable|string',
         'shipping_address' => 'required',
@@ -26,6 +27,16 @@ public function checkout(Request $request)
         'shipping_postal_code' => 'nullable'
     ]);
 
+    if ($request->address_id) {
+
+    $address = $user->addresses()
+        ->findOrFail($request->address_id);
+
+    $data['customer_name'] = $address->name;
+    $data['shipping_address'] = $address->address;
+    $data['shipping_city'] = $address->city;
+    $data['shipping_postal_code'] = $address->postal_code;
+}
     $cart = Cart::with('items.product')
         ->where('user_id',$user->id)
         ->first();

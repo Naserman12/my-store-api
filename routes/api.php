@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\API\AddressController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AdminDashboardController as ApiAdminDashboardController;
+use App\Http\Controllers\Api\AdminOrderController as ApiAdminOrderController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\Api\ProductController;
@@ -10,7 +12,6 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
 
 // API Routes
-
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('addresses', AddressController::class);
@@ -33,6 +34,14 @@ Route::prefix('cart')->group(function () {
     Route::delete('/item/{id}', [CartController::class,'remove']);
     Route::delete('/clear', [CartController::class,'clear']);
 
+});
+// Admin routes (protected by auth:sanctum and admin middleware)
+Route::prefix('admin')->group(function () {
+
+    Route::get('/dashboard', [ApiAdminDashboardController::class, 'index']);
+    Route::get('/orders/latest', [ApiAdminOrderController::class, 'latest']);
+    Route::patch('/orders/{order}', [ApiAdminOrderController::class, 'updateStatus']);
+    Route::get('/admin/orders/{order}', [ApiAdminOrderController::class, 'show']);
 });
 // Category route
 Route::get('categories', [ProductController::class, 'GetCategories']);
