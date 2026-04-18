@@ -10,7 +10,7 @@ return [
     'supports_credentials' => false,
 ];
 
-<!-- تقيد الوصول -->
+// <!-- تقيد الوصول -->
 // 'allowed_origins' => ['https://my-store-2f36e.web.app'],
 
 
