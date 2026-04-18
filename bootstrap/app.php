@@ -28,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
         ]);
 
-    })
+    })->withMiddleware(function (Middleware $middleware) {
+    $middleware->api(prepend: [
+        \Illuminate\Http\Middleware\HandleCors::class,
+    ]);
+})
 
     ->create();
