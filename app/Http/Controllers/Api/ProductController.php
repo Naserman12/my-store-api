@@ -25,7 +25,6 @@ class ProductController extends Controller
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
-
         /* ========= CATEGORY FILTER ========= */
 
         if ($request->category_id) {
@@ -54,26 +53,68 @@ class ProductController extends Controller
 
         $products = $query->paginate(12);
 
-        return ProductResource::collection($products);
+        return  ProductResource::collection($products);
     }
-
     /* ===============================
        SINGLE PRODUCT
     =============================== */
-
-    public function show($slug)
+    public function show($id)
     {
         $product = Product::with([
             'category',
             'images',
             'features'
-        ])->where('slug',$slug)->firstOrFail();
+        ])->where('id',$id)->firstOrFail();
 
         return new ProductResource($product);
     }
+
+    /* ===============================
+       GET CATEGORIES WITH PRODUCTS
+    =============================== */
+    public function getCategoriesWithProducts()
+    {
+        $categories = Category::with('products')->get();
+        return response()->json(['data' => ['categories' => $categories]]);
+    }
+    /* ===============================
+       GET CATEGORIES
+    =============================== */
 
     public function GetCategories(){
     $query = Category::query()->get()->all();
     return $query;
     }
+
+    /* ==============================
+     GET CATEGORY PRODUCTS
+     ================================*/
+     // Controller
+public function getCategoryProducts($id)
+{
+    $category = Category::with(['products.images'])->findOrFail($id);
+
+    return response()->json([
+        'data' => [
+            'products' => ProductResource::collection($category->products),
+            'category_name' => $category->name,
+        ]
+    ]);
+}
+    /* ==============================
+     GET CATEGORY
+     ================================*/
+    public function getCategory($id){
+        return Category::where('id', $id)->firstOrFail();
+    }
+    /* ==============================
+     Edit Product (Admin)
+     ================================*/
+     public function update(Request $request, $id)
+     {
+         $product = Product::findOrFail($id);
+         $product->update($request->all());
+         return new ProductResource($product);
+     }
+     /* ============================== */
 }

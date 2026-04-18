@@ -6,13 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductImage extends Model
 {
-    protected $fillable = [
-        'product_id',
-        'image_url',
-        'alt_text',
-        'sort_order',
-        'is_primary'
-    ];
+ 
+    protected $table = 'product_images';
+
+    protected $fillable = ['product_id', 'image_url', 'is_primary'];
 
     public function product()
     {

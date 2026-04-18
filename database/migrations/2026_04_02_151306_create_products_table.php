@@ -15,9 +15,11 @@ return new class extends Migration {
             $table->decimal('sale_price',10,2)->nullable();
             $table->integer('quantity')->default(0);
             $table->string('sku')->nullable()->unique();
+            $table->string('image')->nullable();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_hidden')->default(false);
+            $table->json('features')->nullable();
             $table->timestamps();
         });
     }

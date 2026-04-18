@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -24,6 +25,10 @@ class AuthController extends Controller
         $user = User::create($data);
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $sessionId = request()->header('X-Session-ID');
+
+        Cart::where('session_id', $sessionId)
+        ->update(['user_id' => $user->id, 'session_id' => null]);
 
         return response()->json([
             'user' => $user,
@@ -49,7 +54,9 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-
+            $sessionId = request()->header('X-Session-ID');
+            Cart::where('session_id', $sessionId)
+        ->update(['user_id' => $user->id, 'session_id' => null]);
         return response()->json([
             'user' => $user,
             'token' => $token
