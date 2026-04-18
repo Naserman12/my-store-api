@@ -51,7 +51,7 @@ class CheckoutController extends Controller
     $data['shipping_address'] = $address->address;
     $data['shipping_city'] = $address->city;
     $data['shipping_postal_code'] = $address->postal_code;
-}
+    }
     if ($user) {
         $cart = Cart::with('items.product')
         ->where('user_id',$user->id)

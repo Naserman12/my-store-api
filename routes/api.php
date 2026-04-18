@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\OrderController;
 // });
 
 // address routes (protected by auth:sanctum middleware)
+
     Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('addresses', AddressController::class);
 });
