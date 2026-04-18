@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
-        private function getCart(Request $request){
+    private function getCart(Request $request){
             if ($request->user()) {
                 return Cart::where(
                     'user_id',
@@ -81,13 +81,13 @@ class CheckoutController extends Controller
         }
 
         $order = Order::create([
-            'user_id' => $user->id,
+            'user_id' => optional($user)->id,
             'order_number' => 'ORD-' . time(),
             'subtotal' => $subtotal,
             'total' => $subtotal,
             'customer_name' => $data['customer_name'],
             'customer_phone' => $data['customer_phone'],
-            'customer_email' => $user->email,
+            'customer_email' => optional($user)->email,
             'shipping_address' => $data['shipping_address'],
             'shipping_city' => $data['shipping_city'],
             'shipping_postal_code' => $data['shipping_postal_code']
