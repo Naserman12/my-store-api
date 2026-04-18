@@ -4,7 +4,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\HandleCors;
 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -29,10 +28,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
         ]);
 
-    })->withMiddleware(function (Middleware $middleware) {
-    $middleware->api(prepend: [
-        \Illuminate\Http\Middleware\HandleCors::class,
-    ]);
-})
+    })
 
     ->create();
