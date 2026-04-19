@@ -62,7 +62,14 @@ public function updateAvatar(Request $request)
     $result = (new UploadApi())->upload(
         $request->file('avatar')->getRealPath(),
         [
-            'folder' => 'avatars'
+            'folder' => 'avatars',
+            'transformation' => [
+            'width' => 300,
+            'height' => 300,
+            'crop' => 'fill',
+            'quality' => 'auto',
+            'fetch_format' => 'auto'
+        ]
         ]
     );
     $user->update([
