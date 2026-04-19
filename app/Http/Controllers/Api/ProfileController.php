@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 
 class ProfileController extends Controller
 {
@@ -38,16 +42,35 @@ public function updateAvatar(Request $request)
     $request->validate([
         'avatar' => 'required|image|max:2048'
     ]);
-
-    $path = $request->file('avatar')->store('avatars','public');
-
     $user = $request->user();
-    $user->update([
-        'avatar' => $path
+    // إعداد Cloudinary
+    Configuration::instance([
+        'cloud' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key'    => env('CLOUDINARY_API_KEY'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+        ],
+        'url' => [
+            'secure' => true
+        ]
     ]);
-
+    // حذف القديم
+    if ($user->avatar_public_id) {
+        (new UploadApi())->destroy($user->avatar_public_id);
+    }
+    // رفع الصورة
+    $result = (new UploadApi())->upload(
+        $request->file('avatar')->getRealPath(),
+        [
+            'folder' => 'avatars'
+        ]
+    );
+    $user->update([
+        'avatar' => $result['secure_url'],
+        'avatar_public_id' => $result['public_id']
+    ]);
     return response()->json([
-        'avatar' => $path
+        'avatar' => $result['secure_url']
     ]);
 }
 // Update password
