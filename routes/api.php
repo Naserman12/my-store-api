@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\API\AddressController;
-use App\Http\Controllers\Api\Admin\AdminProductController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\Admin\AdminProductController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminOrderController;
 use App\Http\Controllers\Api\AuthController;
