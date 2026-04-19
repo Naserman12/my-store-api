@@ -55,9 +55,9 @@ public function updateAvatar(Request $request)
         ]
     ]);
     // حذف القديم
-    // if ($user->avatar_public_id) {
-    //     (new UploadApi())->destroy($user->avatar_public_id);
-    // }
+    if ($user->avatar_public_id) {
+        (new UploadApi())->destroy($user->avatar_public_id);
+    }
     // رفع الصورة
     $result = (new UploadApi())->upload(
         $request->file('avatar')->getRealPath(),
@@ -74,7 +74,7 @@ public function updateAvatar(Request $request)
     );
     $user->update([
         'avatar' => $result['secure_url'],
-        // 'avatar_public_id' => $result['public_id'], // ✅ مهم
+        'avatar_public_id' => $result['public_id'], // ✅ مهم
     ]);
     $user->refresh();
 return response()->json([
