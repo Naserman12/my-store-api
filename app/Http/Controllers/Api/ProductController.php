@@ -9,6 +9,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Category;
 use App\Models\ProductImage;
 use Cloudinary\Api\Upload\UploadApi;
+use Cloudinary\Configuration\Configuration;
 
 class ProductController extends Controller
 {
@@ -127,6 +128,17 @@ public function uploadImages(Request $request, $productId){
 
     $product = Product::findOrFail($productId);
 
+        // إعداد Cloudinary
+    Configuration::instance([
+        'cloud' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key'    => env('CLOUDINARY_API_KEY'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+        ],
+        'url' => [
+            'secure' => true
+        ]
+    ]);
     foreach ($request->file('images') as $index => $file) {
 
         $result = (new UploadApi())->upload(
