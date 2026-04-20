@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
 use App\Models\ProductImage;
+use App\Models\Wishlist;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Configuration\Configuration;
 
@@ -166,4 +167,41 @@ public function uploadImages(Request $request, $productId){
         'message' => 'تم رفع الصور بنجاح'
     ]);
 }
+
+/* ==============================
+     Toggle Wishlist
+     ================================*/
+public function toggle(Request $request)
+{
+    $user = $request->user();
+
+    $exists = Wishlist::where('user_id', $user->id)
+        ->where('product_id', $request->product_id)
+        ->first();
+
+    if ($exists) {
+        $exists->delete();
+        return response()->json(['message' => 'removed']);
+    }
+
+    Wishlist::create([
+        'user_id' => $user->id,
+        'product_id' => $request->product_id
+    ]);
+
+    return response()->json(['message' => 'added']);
+}
+/* ==============================
+     Get Wishlist
+     ================================*/
+public function getWishlist(Request $request)
+{
+    $user = $request->user();
+
+    $wishlist = Wishlist::where('user_id', $user->id)
+        ->with('product.images')
+        ->get();
+
+    return response()->json(['data' => $wishlist]);
+
 }
