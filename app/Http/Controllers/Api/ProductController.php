@@ -203,5 +203,5 @@ public function getWishlist(Request $request)
         ->get();
 
     return response()->json(['data' => $wishlist]);
-
 }
+};
