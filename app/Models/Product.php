@@ -18,7 +18,7 @@ class Product extends Model
         'is_featured',
         'is_hidden',
         'image',
-        'features',
+
     ];
 
     protected $casts = [

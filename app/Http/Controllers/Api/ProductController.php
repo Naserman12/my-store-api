@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use App\Models\ProductImage;
+use Cloudinary\Api\Upload\UploadApi;
 
 class ProductController extends Controller
 {
@@ -74,7 +76,7 @@ class ProductController extends Controller
     =============================== */
     public function getCategoriesWithProducts()
     {
-        $categories = Category::with('products')->get();
+        $categories = Category::with('products', 'products.images')->get();
         return response()->json(['data' => ['categories' => $categories]]);
     }
     /* ===============================
@@ -90,9 +92,8 @@ class ProductController extends Controller
      GET CATEGORY PRODUCTS
      ================================*/
      // Controller
-public function getCategoryProducts($id)
-{
-    $category = Category::with(['products.images'])->findOrFail($id);
+public function getCategoryProducts($id){
+    $category = Category::with(['products' ,'products.images'])->findOrFail($id);
 
     return response()->json([
         'data' => [
@@ -117,4 +118,39 @@ public function getCategoryProducts($id)
          return new ProductResource($product);
      }
      /* ============================== */
+
+
+public function uploadImages(Request $request, $productId){
+    $request->validate([
+        'images.*' => 'required|image|max:2048'
+    ]);
+
+    $product = Product::findOrFail($productId);
+
+    foreach ($request->file('images') as $index => $file) {
+
+        $result = (new UploadApi())->upload(
+            $file->getRealPath(),
+            [
+                'folder' => 'products',
+                'transformation' => [
+                    'width' => 600,
+                    'height' => 600,
+                    'crop' => 'fill',
+                    'quality' => 'auto'
+                ]
+            ]
+        );
+
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image_url' => $result['secure_url'],
+            'is_primary' => $index === 0 // أول صورة رئيسية
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'تم رفع الصور بنجاح'
+    ]);
+}
 }
