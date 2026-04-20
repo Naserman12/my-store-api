@@ -17,7 +17,6 @@ class Product extends Model
         'category_id',
         'is_featured',
         'is_hidden',
-        'image',
 
     ];
 

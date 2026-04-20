@@ -19,7 +19,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query()
-            ->with(['category','images'])
+            ->with(['category','images',])
             ->where('is_hidden', false);
 
         /* ========= SEARCH ========= */
@@ -145,6 +145,7 @@ public function uploadImages(Request $request, $productId){
         ProductImage::create([
             'product_id' => $product->id,
             'image_url' => $result['secure_url'],
+            'public_id' => $result['public_id'],
             'is_primary' => $index === 0 // أول صورة رئيسية
         ]);
     }
