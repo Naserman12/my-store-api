@@ -190,7 +190,7 @@ public function toggle(Request $request)
         'product_id' => $productId,
 
     ]);
-    return response()->json(['staus' => 'added', 'product_id' => $productId]);
+    return response()->json(['status' => 'added', 'product_id' => $productId]);
 }
 /* ==============================
      Get Wishlist
