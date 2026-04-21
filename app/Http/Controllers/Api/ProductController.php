@@ -174,22 +174,23 @@ public function uploadImages(Request $request, $productId){
 public function toggle(Request $request)
 {
     $user = $request->user();
+    $productId = $request->product_id;
 
     $exists = Wishlist::where('user_id', $user->id)
-        ->where('product_id', $request->product_id)
+        ->where('product_id', $productId)
         ->first();
 
     if ($exists) {
         $exists->delete();
-        return response()->json(['message' => 'removed']);
+        return response()->json(['status' => 'removed', 'product_id' => $productId]);
     }
 
     Wishlist::create([
         'user_id' => $user->id,
-        'product_id' => $request->product_id
-    ]);
+        'product_id' => $productId,
 
-    return response()->json(['message' => 'added']);
+    ]);
+    return response()->json(['staus' => 'added', 'product_id' => $productId]);
 }
 /* ==============================
      Get Wishlist

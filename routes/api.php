@@ -93,6 +93,6 @@ Route::post('/checkout',[CheckoutController::class,'checkout'])
 
 // Wishlist routes (protected by auth:sanctum middleware)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/wishlist/toggle', [ProductController::class, 'toggle']);
     Route::get('/wishlist', [ProductController::class, 'getWishlist']);
+    Route::post('/wishlist/toggle', [ProductController::class, 'toggle']);
 });
