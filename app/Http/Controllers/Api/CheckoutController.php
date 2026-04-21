@@ -49,7 +49,7 @@ class CheckoutController extends Controller
 
     $data['customer_name'] = $address->name;
     $data['shipping_address'] = $address->address;
-    $data['customer_phone'] = $address->customer_phone ?? $user->phone;
+    $data['customer_phone'] = $address->customer_phone ?? $user->phone ?? null;
     $data['shipping_city'] = $address->city;
     $data['shipping_postal_code'] = $address->postal_code;
     }
