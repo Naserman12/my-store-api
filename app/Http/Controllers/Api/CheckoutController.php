@@ -47,9 +47,9 @@ class CheckoutController extends Controller
     $address = $user->addresses()
         ->findOrFail($request->address_id);
 
-    $data['customer_name'] = $address->name;
-    $data['shipping_address'] = $address->address;
-    $data['customer_phone'] = $address->customer_phone ?? $user->phone ?? null;
+    $data['customer_name'] = $address->user->name ?? 'غير معروف';
+    $data['customer_phone'] = $address->customer_phone ?? $address->user->phone ?? null;
+    $data['shipping_address'] = $address->address;  
     $data['shipping_city'] = $address->city;
     $data['shipping_postal_code'] = $address->postal_code;
     }
