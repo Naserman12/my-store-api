@@ -86,7 +86,6 @@ public function add(Request $request) {
             'quantity' => $request->quantity,
 
         ]);
-
         return response()->json([
             'success' => true,
             'message' => 'تم إضافة المنتج للسلة',

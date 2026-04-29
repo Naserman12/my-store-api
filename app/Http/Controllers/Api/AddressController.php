@@ -19,24 +19,39 @@ class AddressController extends Controller
 public function store(Request $request)
 {
     $data = $request->validate([
-        'title'=>'required',
-        'city'=>'required',
-        'address'=>'required',
+        'title' => 'required_without:lat',
+        'city' => 'required_without:lat',
+        'address' => 'required_without:lat',
         'postal_code'=>'nullable',
-        'phone'=>'nullable'
+        'phone'=>'nullable',
+        'lat' => 'nullable|numeric',
+        'lng' => 'nullable|numeric',
+        'location_type' => 'nullable|in:manual,map',
     ]);
-
+    if ($request->location_type === 'map') {
+    if (!$data['title']) {
+        $data['title'] = 'موقع من الخريطة';
+    }
+    }
     return $request->user()->addresses()->create($data);
 }
 public function update(Request $request, Address $address)
 {
     $data = $request->validate([
-        'title'=>'required',
-        'city'=>'required',
-        'address'=>'required',
+        'title' => 'required_without:lat',
+        'city' => 'required_without:lat',
+        'address' => 'required_without:lat',
         'postal_code'=>'nullable',
-        'phone'=>'nullable'
+        'phone'=>'nullable',
+         'lat' => 'nullable|numeric',
+        'lng' => 'nullable|numeric',
+        'location_type' => 'nullable|in:manual,map',
     ]);
+    if ($request->location_type === 'map') {
+    if (!$data['title']) {
+        $data['title'] = 'موقع من الخريطة';
+    }
+    }
     $this->authorize('update',$address);
     $address->update($data);
 
