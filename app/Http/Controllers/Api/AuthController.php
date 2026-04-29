@@ -37,7 +37,13 @@ class AuthController extends Controller
         $cart = Cart::with('items.product')
         ->where('user_id', $user->id)
         ->first();
-
+       if ($user) {
+         sendNotification(
+            $user->id,
+            "🎉 أهلاً بك",
+            "مرحباً {$user->name} في متجرنا ❤️ هذا التنبه بانك فتحت حساب جديد نتمنى لك التوفيق"
+        );
+        }
     return response()->json([
         'user' => $user,
         'token' => $token,
@@ -65,20 +71,20 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;          
         $sessionId = $request->header('X-Session-ID');
         $this->mergeCarts($user->id, $sessionId);
-        if ($user) {
         $cart = Cart::with('items.product')
-                ->where('user_id', $user->id)
-                ->first();
-                }
-        sendNotification(
-            $user->id,
-            "🎉 أهلاً بك",
-            "مرحباً {$user->name} في متجرنا ❤️"
-        );
+        ->where('user_id', $user->id)
+        ->first();
+        if ($user) {
+            sendNotification(
+                $user->id,
+                "🎉 أهلاً بك",
+                "مرحباً {$user->name} في متجرنا ❤️ هذا التنبه بانك سجلت دخول شكرا لوقت"
+                );
+        }
         return response()->json([
             'user' => $user,
             'token' => $token,
-            'cart' => $cart  
+            'cart' => $cart, 
         ]);
     }
 
