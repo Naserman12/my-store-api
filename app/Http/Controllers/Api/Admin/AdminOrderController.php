@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderStatusLog;
 use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
@@ -32,6 +33,12 @@ public function updateStatus(Request $request, Order $order)
         'status' => $request->status
     ]);
 
+        // تسجيل التغيير
+    OrderStatusLog::create([
+        'order_id' => $order->id,
+        'status' => $request->status
+    ]);
+
     return response()->json([
         'message' => 'Order updated successfully'
     ]);
@@ -55,7 +62,8 @@ public function show(Order $order)
 {
     $order->load([
         'user:id,name,email',
-        'items.product:id,name,price,image'
+        'items.product:id,name,price,image',
+        'statusLogs'
     ]);
 
     return response()->json($order);

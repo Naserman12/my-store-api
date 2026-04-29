@@ -43,6 +43,21 @@ return new class extends Migration {
             $table->text('notes')->nullable();
             $table->timestamp('paid_at')->nullable();
 
+                        // تاريخ التوصيل
+            $table->timestamp('delivery_date')->nullable();
+
+            // طريقة الدفع
+            $table->string('payment_method')->nullable();
+
+            // رسوم الدفع
+            $table->decimal('payment_fee', 10, 2)->default(0);
+
+            // طريقة الشحن
+            $table->string('shipping_method')->nullable();
+
+            // رقم الفاتورة
+            $table->string('invoice_number')->nullable()->unique();
+
             $table->timestamps();
         });
     }
@@ -50,5 +65,6 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('orders');
+        
     }
 };

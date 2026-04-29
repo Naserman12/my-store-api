@@ -59,6 +59,19 @@ class ProductController extends Controller
 
         return  ProductResource::collection($products);
     }
+
+    /* ===============================
+        Show Last Added
+    ================================ */
+    public function lastAdded(){
+        $product = Product::with([
+            'category',
+            'images',
+            'features'
+        ])->where('is_hidden', false)->get();
+
+        return $product;
+    }
     /* ===============================
        SINGLE PRODUCT
     =============================== */
@@ -121,6 +134,9 @@ public function getCategoryProducts($id){
      }
      /* ============================== */
 
+     /* ==============================
+     Upload images (Admin)
+     ===============================*/
 
 public function uploadImages(Request $request, $productId){
     $request->validate([

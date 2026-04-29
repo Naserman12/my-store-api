@@ -12,10 +12,6 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
 
-// API Routes
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::apiResource('addresses', AddressController::class);
-// });
 
 // address routes (protected by auth:sanctum middleware)
 
@@ -31,7 +27,6 @@ Route::post('/add', [CartController::class, 'add']);
 Route::put('/{id}', [CartController::class, 'update']);
 Route::delete('/{id}', [CartController::class, 'remove']);
 Route::delete('/clear', [CartController::class, 'clear']);
-
 });
 // Admin routes (protected by auth:sanctum and admin middleware)
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
@@ -59,6 +54,7 @@ Route::get('/categories-with-products', [ProductController::class, 'getCategorie
 Route::get('/products', [ProductController::class,'index']);
 Route::get('/products/{id}', [ProductController::class,'show']);
 
+
 // Profile routes (protected by auth:sanctum middleware)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class,'show']);
@@ -80,10 +76,12 @@ Route::prefix('auth')->group(function () {
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('/addresses', [AddressController::class,'index']);
 // });
-    // My orders routes (protected by auth:sanctum middleware)
+// My orders routes (protected by auth:sanctum middleware)
+Route::get('/invoice/{id}', [OrderController::class, 'invoice']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-orders', [OrderController::class,'myOrders']);
     Route::get('/my-orders/{id}', [OrderController::class,'show']);
+    Route::post('/pay', [CheckoutController::class, 'pay']);
 
 });
 // checkout route

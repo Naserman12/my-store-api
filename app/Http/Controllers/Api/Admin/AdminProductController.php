@@ -25,7 +25,7 @@ class AdminProductController extends Controller
         'description' => 'nullable|string',
         'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
-        'image' => 'nullable|image|max:2048',
+        'images' => 'nullable|image|max:2048',
         'features' => 'nullable|array'
     ]);
 
@@ -47,10 +47,8 @@ class AdminProductController extends Controller
         'category_id' => $request->category_id,
         'is_featured' => $request->is_featured,
         'is_hidden' => $request->is_hidden,
-        'image' => $imagePath,
+        'images' => $imagePath,
     ]);
-
-
     // حفظ الميزات
     if ($request->features) {
         foreach ($request->features as $feature) {
@@ -88,7 +86,7 @@ public function update(Request $request, $id)
         'description' => 'nullable|string',
         'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
-        'image' => 'nullable|image|max:2048',
+        'images' => 'nullable|image|max:2048',
         'features' => 'nullable|array'
     ]);
     $product = Product::findOrFail($id);
@@ -108,7 +106,7 @@ public function update(Request $request, $id)
         'category_id' => $request->category_id,
         'is_featured' => $request->is_featured,
         'is_hidden' => $request->is_hidden,
-        'image' => $imagePath,
+        'images' => $imagePath,
     ]);
     return response()->json($product);
 }

@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -25,15 +28,21 @@ class AuthController extends Controller
         $user = User::create($data);
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $sessionId = request()->header('X-Session-ID');
+       
 
-        Cart::where('session_id', $sessionId)
-        ->update(['user_id' => $user->id, 'session_id' => null]);
+        $sessionId = $request->header('X-Session-ID');
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ]);
+        $this->mergeCarts($user->id, $sessionId);
+
+        $cart = Cart::with('items.product')
+        ->where('user_id', $user->id)
+        ->first();
+
+    return response()->json([
+        'user' => $user,
+        'token' => $token,
+        'cart' => $cart
+    ]);
     }
 
     /* ================= LOGIN ================= */
@@ -45,21 +54,26 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $credentials  = $request->only('email', 'password');
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!Auth::attempt($credentials )) {
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials']
             ]);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-            $sessionId = request()->header('X-Session-ID');
-            Cart::where('session_id', $sessionId)
-        ->update(['user_id' => $user->id, 'session_id' => null]);
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;          
+        $sessionId = $request->header('X-Session-ID');
+        $this->mergeCarts($user->id, $sessionId);
+        if ($user) {
+        $cart = Cart::with('items.product')
+                ->where('user_id', $user->id)
+                ->first();
+                }
         return response()->json([
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'cart' => $cart  
         ]);
     }
 
@@ -73,9 +87,52 @@ class AuthController extends Controller
             'message' => 'Logged out'
         ]);
     }
-
     /* ================= USER ================= */
+    private function mergeCarts($userId, $sessionId)
+    {
+        if (!$sessionId) {
+            $sessionId = request()->header('X-Session-ID');
+        }
 
+        if (!$sessionId || $sessionId === "null") return;
+
+        $guestCart = Cart::with('items')
+            ->where('session_id', $sessionId)
+            ->first();
+
+        $userCart = Cart::firstOrCreate(
+            ['user_id' => $userId],
+            ['session_id' => null]
+        );
+
+        if (!$guestCart) return;
+
+        // 🔥 مهم جداً
+        if ($guestCart->id === $userCart->id) return;
+
+        foreach ($guestCart->items as $item) {
+
+            $existing = CartItem::where('cart_id', $userCart->id)
+                ->where('product_id', $item->product_id)
+                ->first();
+
+            if ($existing) {
+                $existing->quantity += $item->quantity;
+                $existing->save();
+            } else {
+                CartItem::create([
+                    'cart_id' => $userCart->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity
+                ]);
+            }
+        }
+         // 🔥 اربط session_id بسلة المستخدم
+        $userCart->session_id = $sessionId;
+        $userCart->save();
+        $guestCart->items()->delete();
+        $guestCart->delete();
+    }
     public function user(Request $request)
     {
         return $request->user();

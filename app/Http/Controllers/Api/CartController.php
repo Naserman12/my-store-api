@@ -13,35 +13,27 @@ use Illuminate\Support\Facades\Auth;
 class CartController extends Controller
 {
     // الحصول على السلة الحالية (إنشاء إذا لم تكن موجودة)
-    private function getOrCreateCart(Request $request){
-        
-        $user = $request->user();
-        $sessionId = $request->header('X-Session-ID');
-        if($user){
-         // إذا كان لديه سلة زائر، اربطها به
-        Cart::where('session_id', $sessionId)
-            ->update([
-                'user_id' => $user->id,
-                'session_id' => null
-            ]);
+private function getOrCreateCart(Request $request)
+{
+    $user = $request->user();
+    $sessionId = $request->header('X-Session-ID');
 
-                   // مستخدم مسجل
-        return Cart::firstOrCreate([
-            'user_id' => $user->id
-        ]);
-        }
-         else {
-            // زائر
-            if (!$sessionId) {
-                        // إنشاء session id إذا لم يكن موجود
-                $sessionId = uniqid('guest_', true);
-            }
-            
-        }  
+
+    // 👤 مستخدم
+    if ($user) {
+        return Cart::where('user_id', $user->id)->first();
+    }
+    
+
+    // 👤 زائر
+    if (!$sessionId) {
+        $sessionId = uniqid('guest_', true);
+    }
+
     return Cart::firstOrCreate([
         'session_id' => $sessionId
     ]);
-    }
+}
 // ===============================
 // GET CART
 // ===============================
@@ -52,13 +44,14 @@ public function index(Request $request){
             ->get();
             $total = $cartItems->sum(function ($item) {
             $price = $item->product->sale_price ?? $item->product->price;
-            return $price * $item->quantity;
+            return $price * $item->quantity - $item->discount;
         });
         return response()->json([
             'success' => true,
             'items' => $cartItems,
             'total' => $total,
             'count' => $cartItems->sum('quantity'),
+            'session_id' => $cart->session_id,
         ]);
 }
 // ===============================
@@ -76,11 +69,11 @@ public function add(Request $request) {
             ->first();
             
             if ($existingItem) {
-            // $existingItem->quantity += $validated['quantity'];
-            // $existingItem->save();
+            $existingItem->quantity += $validated['quantity'];
+            $existingItem->save();
 
             return response()->json([
-            'success' => false,
+            'success' => true,
               'already_in_cart' => true,
             'message' => 'المنتج موجود بالفعل في السلة. هل تريد الانتقال لصفحة الدفع؟',
             'item' => $existingItem,
@@ -89,8 +82,9 @@ public function add(Request $request) {
                     // إضافة منتج جديد للسلة
         $cartItem = CartItem::create([
             'cart_id' => $cart->id,
-            'product_id' => $validated['product_id'],
-            'quantity'   => $validated['quantity'],
+            'product_id' => $request->product_id,
+            'quantity' => $request->quantity,
+
         ]);
 
         return response()->json([
@@ -124,18 +118,19 @@ public function update(Request $request, $id)
 // ===============================
 // REMOVE FROM CART
 // ===============================
-public function remove($id)
+public function remove(Request $request, $id)
 {
-    $userId = Auth::id() ?? request()->ip();
-            $cartItem = Cart::where('id', $id)
-            ->where('user_id', $userId)
-            ->firstOrFail();
-            $cartItem->delete();
+    $cart = $this->getOrCreateCart($request);
 
+    $cartItem = CartItem::where('id', $id)
+        ->where('cart_id', $cart->id)
+        ->firstOrFail();
+
+    $cartItem->delete();
 
     return response()->json([
-            'success' => true,
-            'message' => 'تم حذف المنتج من السلة',
+        'success' => true,
+        'message' => 'تم حذف المنتج من السلة',
     ]);
 }
 // ===============================
