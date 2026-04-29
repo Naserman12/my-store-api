@@ -116,6 +116,11 @@ public function checkout(Request $request)
         'payment_method' => $request->payment_method,
         'amount' => $order->total,
          ]);
+         sendNotification(
+            $user->id,
+            "📦 تم إنشاء طلبك",
+            "طلبك رقم {$order->order_number} تم استلامه بنجاح"
+        );
         // 🔥 تفريغ السلة بعد إنشاء الطلب
     //    $cart->items()->delete();
         DB::commit();

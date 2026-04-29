@@ -11,7 +11,25 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
+use App\Models\Notification;
+use Illuminate\Support\Facades\Request;
 
+// notficitions
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/notifications', function (Request $request) {
+        return $request->user()
+            ->notifications()
+            ->latest()
+            ->get();
+    });
+
+    Route::post('/notifications/read/{id}', function ($id) {
+        Notification::where('id', $id)->update(['is_read' => true]);
+        return ['success' => true];
+    });
+
+});
 
 // address routes (protected by auth:sanctum middleware)
 

@@ -70,6 +70,11 @@ class AuthController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
                 }
+        sendNotification(
+            $user->id,
+            "🎉 أهلاً بك",
+            "مرحباً {$user->name} في متجرنا ❤️"
+        );
         return response()->json([
             'user' => $user,
             'token' => $token,
