@@ -10,7 +10,7 @@ use App\Models\OrderItem;
 use App\Models\OrderStatusLog;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
@@ -116,11 +116,13 @@ public function checkout(Request $request)
         'payment_method' => $request->payment_method,
         'amount' => $order->total,
          ]);
-         sendNotification(
-            $user->id,
-            "📦 تم إنشاء طلبك",
-            "طلبك رقم {$order->order_number} تم استلامه بنجاح"
-        );
+       if ($user) {
+       sendNotification(
+                $user->id,
+                "📦 تم إنشاء طلبك",
+                "طلبك رقم {$order->order_number} تم استلامه بنجاح"
+            );
+        }
         // 🔥 تفريغ السلة بعد إنشاء الطلب
     //    $cart->items()->delete();
         DB::commit();
@@ -164,7 +166,6 @@ public function pay(Request $request)
         'status' => 'paid',
         'note' => 'تم الدفع بنجاح 💳'
     ]);
-
     return response()->json([
         'message' => 'تم الدفع بنجاح',
         'order' => $order
