@@ -1,5 +1,4 @@
-// app/helpers.php
-
+<?php
 use App\Models\Notification;
 
 function sendNotification($userId, $title, $message)
