@@ -26,7 +26,7 @@ class SendPaymentReminders extends Command
         sendNotification(
             $order->user_id,
             "⏰ تذكير بالدفع",
-            "لم تقم بدفع طلبك رقم {$order->order_number}"
+            "لم تقم بدفع طلبك رقم 0 {$order->order_number}"
         );
     }
     }
