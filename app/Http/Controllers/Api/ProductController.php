@@ -11,6 +11,7 @@ use App\Models\ProductImage;
 use App\Models\Wishlist;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Configuration\Configuration;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -108,11 +109,15 @@ class ProductController extends Controller
      ================================*/
      // Controller
 public function getCategoryProducts($id){
-    $category = Category::with(['products' ,'products.images'])->findOrFail($id);
+    $category = Category::findOrFail($id);
 
+    $products = $category->products()
+        ->where('is_hidden', false)
+        ->with('images')
+        ->get();
     return response()->json([
         'data' => [
-            'products' => ProductResource::collection($category->products),
+            'products' => ProductResource::collection($products),
             'category_name' => $category->name,
         ]
     ]);
@@ -221,4 +226,18 @@ public function getWishlist(Request $request)
 
     return response()->json(['data' => $wishlist]);
 }
+
+// الاعلى مبييعا
+public function bestSelling(){
+
+        $products = Product::select('products.*', DB::raw('SUM(cart_items.quantity) as total_added'))
+        ->join('cart_items', 'cart_items.product_id', '=', 'products.id')
+        ->groupBy('products.id')
+        ->orderByDesc('total_added')
+        ->take(10)
+        ->get();
+
+    return response()->json(['data' => $products]);
+}
+
 };

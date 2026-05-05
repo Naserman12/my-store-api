@@ -71,6 +71,8 @@ Route::get('/categories-with-products', [ProductController::class, 'getCategorie
 // Product routes
 Route::get('/products', [ProductController::class,'index']);
 Route::get('/products/{id}', [ProductController::class,'show']);
+Route::get('/last-added', [ProductController::class,'lastAdded']);
+Route::get('/best-selling', [ProductController::class,'bestSelling']);
 
 
 // Profile routes (protected by auth:sanctum middleware)
