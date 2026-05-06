@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
 use App\Models\Notification;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 // notficitions
 Route::middleware('auth:sanctum')->group(function () {
@@ -28,7 +28,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Notification::where('id', $id)->update(['is_read' => true]);
         return ['success' => true];
     });
-
 });
 
 // address routes (protected by auth:sanctum middleware)

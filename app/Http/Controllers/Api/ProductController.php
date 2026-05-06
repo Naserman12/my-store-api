@@ -249,10 +249,6 @@ $products = DB::table('products')
     ->orderByDesc('total_sold')
     ->limit(5)
     ->get();
-
-
-
-
     return response()->json(['data' => $products]);
 }
 
