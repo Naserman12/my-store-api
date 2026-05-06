@@ -72,7 +72,6 @@ public function checkout(Request $request)
         foreach ($cart->items as $item) {
             $price = $item->product->sale_price
                 ?? $item->product->price;
-
             $subtotal += $price * $item->quantity;
         }
 
@@ -82,7 +81,7 @@ public function checkout(Request $request)
             'subtotal' => $subtotal,
             'total' => $subtotal,
             'customer_name' => $data['customer_name'],
-            'customer_phone' => $data['customer_phone'],
+            'customer_phone' => optional($user)->phone,
             'customer_email' => optional($user)->email,
             'shipping_address' => $data['shipping_address'],
             'status' => 'pending',
@@ -99,7 +98,6 @@ public function checkout(Request $request)
         foreach ($cart->items as $item) {
             $price = $item->product->sale_price
                 ?? $item->product->price;
-
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item->product_id,
