@@ -25,11 +25,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/notifications/read/{id}', function ($id) {
-        Notification::where('id', $id)->update(['is_read' => true]);
-        return ['success' => true];
-    });
+    $n = Notification::findOrFail($id);
+    $n->is_read = 1;
+    $n->save();
+    return ['success' => true];
 });
-
+});
 // address routes (protected by auth:sanctum middleware)
 
     Route::middleware('auth:sanctum')->group(function () {
