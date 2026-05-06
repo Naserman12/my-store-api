@@ -25,7 +25,7 @@ public function update(Request $request)
     $data = $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
-        'phone' => 'nullable|string|max:20',
+        'phone' => 'nullable|string|max:20|unique:users,phone',
     ]);
 
     $user->update($data);
