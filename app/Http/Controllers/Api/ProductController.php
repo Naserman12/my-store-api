@@ -69,7 +69,7 @@ class ProductController extends Controller
             'category',
             'images',
             'features'
-        ])->where('is_hidden', false)->get();
+        ])->where('is_hidden', false)->take(5)->get();
 
         return $product;
     }
@@ -228,16 +228,33 @@ public function getWishlist(Request $request)
 }
 
 // الاعلى مبييعا
-public function bestSelling(){
+public function bestSelling()
+{
+$products = DB::table('products')
+    ->leftJoin('order_items', 'order_items.product_id', '=', 'products.id')
+    ->where('products.is_hidden', 0)
+    ->select(
+        'products.id',
+        'products.name',
+        'products.price',
+        'products.image',
+        DB::raw('COALESCE(SUM(order_items.quantity), 0) AS total_sold')
+    )
+    ->groupBy(
+        'products.id',
+        'products.name',
+        'products.price',
+        'products.image'
+    )
+    ->orderByDesc('total_sold')
+    ->limit(5)
+    ->get();
 
-        $products = Product::select('products.*', DB::raw('SUM(cart_items.quantity) as total_added'))
-        ->join('cart_items', 'cart_items.product_id', '=', 'products.id')
-        ->groupBy('products.id')
-        ->orderByDesc('total_added')
-        ->take(10)
-        ->get();
+
+
 
     return response()->json(['data' => $products]);
 }
+
 
 };
