@@ -14,13 +14,13 @@ use App\Http\Controllers\Api\OrderController;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
+
 // notficitions
 Route::middleware('auth:sanctum')->group(function () {
-
+    
     Route::get('/notifications', function (Request $request) {
-        return $request->user()
-            ->notifications()
-            ->latest()
+        return Notification::where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
             ->get();
     });
 
