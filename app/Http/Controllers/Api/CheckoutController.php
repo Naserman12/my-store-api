@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Address;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Order;
@@ -74,6 +75,26 @@ public function checkout(Request $request)
                 ?? $item->product->price;
             $subtotal += $price * $item->quantity;
         }
+        $customerPhone = $data['customer_phone'];
+
+        // المستخدم مسجل دخول دائمًا حسب كلامك
+        if ($user) {
+
+            // إذا المستخدم ما عنده رقم جوال سابق → خزّن الرقم في users + العناوين
+            if (!$user->phone) {
+                $user->update(['phone' => $customerPhone]);
+                $savePhoneToAddress = true;
+            }
+
+            // إذا عنده رقم جوال سابق → لا نغيّره، لكن خزّن الرقم الجديد في العنوان فقط
+            else {
+                $savePhoneToAddress = true;
+            }
+
+        } else {
+            // حسب كلامك: هذا السيناريو غير موجود
+            $savePhoneToAddress = true;
+        }
 
         $order = Order::create([
             'user_id' => optional($user)->id,
@@ -94,6 +115,14 @@ public function checkout(Request $request)
                 'status' => 'pending_payment',
                 'note' => 'تم إنشاء الطلب',
             ]);
+        if ($savePhoneToAddress) {
+    // إذا العنوان موجود مسبقًا
+    if ($data['address_id']) {
+        Address::where('id', $data['address_id'])->update([
+            'phone' => $customerPhone
+        ]);
+            }
+        }
 
         foreach ($cart->items as $item) {
             $price = $item->product->sale_price
