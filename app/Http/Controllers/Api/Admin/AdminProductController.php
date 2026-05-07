@@ -57,7 +57,7 @@ class AdminProductController extends Controller
     if ($request->hasFile('images')) {
         foreach ($request->file('images') as $index => $file) {
              $result = (new UploadApi())->upload(
-                $request->file('images')->getRealPath(),
+                $file->getRealPath(),
                 [
                     'folder' => 'images',
                     'transformation' => [
@@ -209,7 +209,7 @@ public function updateHiddenStatus(Request $request, $id)
         // رفع الصور الجديدة
         foreach ($request->file('images') as $index => $file) {
              $result = (new UploadApi())->upload(
-                $request->file('images')->getRealPath(),
+                $file->getRealPath(),
                 [
                     'folder' => 'images',
                     'transformation' => [
