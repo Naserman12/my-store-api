@@ -209,9 +209,9 @@ public function updateHiddenStatus(Request $request, $id)
         // رفع الصور الجديدة
         foreach ($request->file('images') as $index => $file) {
              $result = (new UploadApi())->upload(
-                $request->file('avatar')->getRealPath(),
+                $request->file('images')->getRealPath(),
                 [
-                    'folder' => 'avatars',
+                    'folder' => 'images',
                     'transformation' => [
                     'width' => 800,
                     'height' => 800,
