@@ -48,7 +48,7 @@ class AdminProductController extends Controller
         'price' => $request->price,
         'sale_price' => $request->sale_price,
         'sku' => $request->sku,
-        
+
         'quantity' => $request->quantity,
         'category_id' => $request->category_id,
         'is_featured' => $request->is_featured,
@@ -199,9 +199,10 @@ public function updateHiddenStatus(Request $request, $id)
     //     'is_hidden' => $request->is_hidden,
     // ]);
 
+    
        // رفع الصور
     if ($request->hasFile('images')) {
-        foreach($request->images as $img){
+        foreach($product->images as $img){
             if($img->public_id){
                 (new UploadApi())->destroy($img->public_id);
                 $img->delete();
