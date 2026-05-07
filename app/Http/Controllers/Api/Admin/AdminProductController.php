@@ -48,6 +48,7 @@ class AdminProductController extends Controller
         'price' => $request->price,
         'sale_price' => $request->sale_price,
         'sku' => $request->sku,
+        
         'quantity' => $request->quantity,
         'category_id' => $request->category_id,
         'is_featured' => $request->is_featured,
@@ -59,7 +60,7 @@ class AdminProductController extends Controller
              $result = (new UploadApi())->upload(
                 $file->getRealPath(),
                 [
-                    'folder' => 'images',
+                    'folder' => 'products',
                     'transformation' => [
                     'width' => 300,
                     'height' => 300,
@@ -211,7 +212,7 @@ public function updateHiddenStatus(Request $request, $id)
              $result = (new UploadApi())->upload(
                 $file->getRealPath(),
                 [
-                    'folder' => 'images',
+                    'folder' => 'products',
                     'transformation' => [
                     'width' => 800,
                     'height' => 800,
