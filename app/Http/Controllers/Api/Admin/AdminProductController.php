@@ -205,8 +205,8 @@ public function updateHiddenStatus(Request $request, $id)
         foreach($product->images as $img){
             if($img->public_id){
                 (new UploadApi())->destroy($img->public_id);
-                $img->delete();
-            }
+                }
+            $img->delete();
         }
         // رفع الصور الجديدة
         foreach ($request->file('images') as $index => $file) {
