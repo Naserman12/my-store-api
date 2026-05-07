@@ -57,9 +57,9 @@ class AdminProductController extends Controller
     if ($request->hasFile('images')) {
         foreach ($request->file('images') as $index => $file) {
              $result = (new UploadApi())->upload(
-                $request->file('avatar')->getRealPath(),
+                $request->file('images')->getRealPath(),
                 [
-                    'folder' => 'avatars',
+                    'folder' => 'images',
                     'transformation' => [
                     'width' => 300,
                     'height' => 300,
