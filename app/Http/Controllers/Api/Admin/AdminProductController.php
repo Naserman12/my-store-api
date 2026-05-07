@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Api\Upload\UploadApi;
+use Cloudinary\Configuration\Configuration;
 use App\Models\ProductImage;
 class AdminProductController extends Controller
 {
@@ -21,6 +22,16 @@ class AdminProductController extends Controller
      ================================*/
      public function store(Request $request)
 {
+        Configuration::instance([
+           'cloud' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key'    => env('CLOUDINARY_API_KEY'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+        ],
+        'url' => [
+            'secure' => true
+        ]
+    ]);
     $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
@@ -42,23 +53,33 @@ class AdminProductController extends Controller
         'is_featured' => $request->is_featured,
         'is_hidden' => $request->is_hidden,
     ]);
-
     // رفع الصور
     if ($request->hasFile('images')) {
-
         foreach ($request->file('images') as $index => $file) {
-
-            $uploaded = Cloudinary::upload(
-                $file->getRealPath(),
+             $result = (new UploadApi())->upload(
+                $request->file('avatar')->getRealPath(),
                 [
-                    'folder' => 'products'
+                    'folder' => 'avatars',
+                    'transformation' => [
+                    'width' => 300,
+                    'height' => 300,
+                    'crop' => 'fill',
+                    'quality' => 'auto',
+                    'fetch_format' => 'auto'
+                ]
                 ]
             );
+            // $uploaded = Cloudinary::upload(
+            //     $file->getRealPath(),
+            //     [
+            //         'folder' => 'products'
+            //     ]
+            // );
 
             ProductImage::create([
                 'product_id' => $product->id,
-                'image_url' => $uploaded->getSecurePath(),
-                'public_id' => $uploaded->getPublicId(),
+                'image_url' => $result['secure_url'],
+                'public_id' => $result['public_id'],
                 'is_primary' => $index === 0
             ]);
         }
@@ -141,6 +162,16 @@ public function updateHiddenStatus(Request $request, $id)
     ================================*/
     public function update(Request $request, $id)
 {
+    Configuration::instance([
+           'cloud' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key'    => env('CLOUDINARY_API_KEY'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+        ],
+        'url' => [
+            'secure' => true
+        ]
+    ]);
     $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
@@ -151,54 +182,87 @@ public function updateHiddenStatus(Request $request, $id)
     ]);
 
     $product = Product::with('images')->findOrFail($id);
+    // تحديث البيانات بدون الصور
+    $product->update($request->except('images'));
+    // // تحديث البيانات
+    // $product->update([
+    //     'name' => $request->name,
+    //     'slug' => $request->slug,
+    //     'description' => $request->description,
+    //     'price' => $request->price,
+    //     'sale_price' => $request->sale_price,
+    //     'sku' => $request->sku,
+    //     'quantity' => $request->quantity,
+    //     'category_id' => $request->category_id,
+    //     'is_featured' => $request->is_featured,
+    //     'is_hidden' => $request->is_hidden,
+    // ]);
 
-    // تحديث البيانات
-    $product->update([
-        'name' => $request->name,
-        'slug' => $request->slug,
-        'description' => $request->description,
-        'price' => $request->price,
-        'sale_price' => $request->sale_price,
-        'sku' => $request->sku,
-        'quantity' => $request->quantity,
-        'category_id' => $request->category_id,
-        'is_featured' => $request->is_featured,
-        'is_hidden' => $request->is_hidden,
-    ]);
-
-    // إذا تم رفع صور جديدة
+       // رفع الصور
     if ($request->hasFile('images')) {
-
-        // حذف الصور القديمة من Cloudinary
-        foreach ($product->images as $image) {
-
-            if ($image->public_id) {
-
-                Cloudinary::destroy($image->public_id);
-
+        foreach($request->images as $img){
+            if($img->public_id){
+                (new UploadApi())->destroy($img->public_id);
+                $img->delete();
             }
-
-            $image->delete();
         }
-
         // رفع الصور الجديدة
         foreach ($request->file('images') as $index => $file) {
-
-            $uploaded = Cloudinary::upload(
-                $file->getRealPath(),
+             $result = (new UploadApi())->upload(
+                $request->file('avatar')->getRealPath(),
                 [
-                    'folder' => 'products'
+                    'folder' => 'avatars',
+                    'transformation' => [
+                    'width' => 800,
+                    'height' => 800,
+                    'crop' => 'fill',
+                    'quality' => 'auto',
+                    'fetch_format' => 'auto'
+                ]
                 ]
             );
-
             ProductImage::create([
                 'product_id' => $product->id,
-                'image_url' => $uploaded->getSecurePath(),
-                'public_id' => $uploaded->getPublicId(),
+                'image_url' => $result['secure_url'],
+                'public_id' => $result['public_id'],
                 'is_primary' => $index === 0
             ]);
         }
     }
+
+    // إذا تم رفع صور جديدة
+    // if ($request->hasFile('images')) {
+
+    //     // حذف الصور القديمة من Cloudinary
+    //     foreach ($product->images as $image) {
+
+    //         if ($image->public_id) {
+
+    //             Cloudinary::destroy($image->public_id);
+
+    //         }
+
+    //         $image->delete();
+    //     }
+
+    //     // رفع الصور الجديدة
+    //     foreach ($request->file('images') as $index => $file) {
+
+    //         $uploaded = Cloudinary::upload(
+    //             $file->getRealPath(),
+    //             [
+    //                 'folder' => 'products'
+    //             ]
+    //         );
+
+    //         ProductImage::create([
+    //             'product_id' => $product->id,
+    //             'image_url' => $uploaded->getSecurePath(),
+    //             'public_id' => $uploaded->getPublicId(),
+    //             'is_primary' => $index === 0
+    //         ]);
+    //     }
+    // }
 
     return response()->json(
         $product->load('images')
