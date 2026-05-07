@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
-
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Models\ProductImage;
 class AdminProductController extends Controller
 {
     /* ==============================
@@ -18,23 +19,16 @@ class AdminProductController extends Controller
     /* ==============================
      Create Product (Admin)
      ================================*/
-    public function store(Request $request)
+     public function store(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
         'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
-        'images' => 'nullable|image|max:2048',
+        'images.*' => 'nullable|image|max:2048',
         'features' => 'nullable|array'
     ]);
-
-    $imagePath = null;
-
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')
-            ->store('products', 'public');
-    }
 
     $product = Product::create([
         'name' => $request->name,
@@ -47,19 +41,85 @@ class AdminProductController extends Controller
         'category_id' => $request->category_id,
         'is_featured' => $request->is_featured,
         'is_hidden' => $request->is_hidden,
-        'images' => $imagePath,
     ]);
-    // حفظ الميزات
-    if ($request->features) {
-        foreach ($request->features as $feature) {
-            $product->features()->create([
-                'name' => $feature
+
+    // رفع الصور
+    if ($request->hasFile('images')) {
+
+        foreach ($request->file('images') as $index => $file) {
+
+            $uploaded = Cloudinary::upload(
+                $file->getRealPath(),
+                [
+                    'folder' => 'products'
+                ]
+            );
+
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_url' => $uploaded->getSecurePath(),
+                'public_id' => $uploaded->getPublicId(),
+                'is_primary' => $index === 0
             ]);
         }
     }
 
-    return response()->json($product, 201);
+    // حفظ الميزات
+    if ($request->features) {
+
+        foreach ($request->features as $feature) {
+
+            $product->features()->create([
+                'name' => $feature
+            ]);
+
+        }
+
+    }
+
+    return response()->json($product->load('images'), 201);
 }
+//     public function store(Request $request)
+// {
+//     $request->validate([
+//         'name' => 'required|string|max:255',
+//         'description' => 'nullable|string',
+//         'quantity' => 'required|integer|min:0',
+//         'category_id' => 'required|exists:categories,id',
+//         'image' => 'nullable|image|max:2048',
+//         'features' => 'nullable|array'
+//     ]);
+
+//     $imagePath = null;
+
+//     if ($request->hasFile('image')) {
+//         $imagePath = $request->file('image')
+//             ->store('products', 'public');
+//     }
+//     $product = Product::create([
+//         'name' => $request->name,
+//         'slug' => $request->slug,
+//         'description' => $request->description,
+//         'price' => $request->price,
+//         'sale_price' => $request->sale_price,
+//         'sku' => $request->sku,
+//         'quantity' => $request->quantity,
+//         'category_id' => $request->category_id,
+//         'is_featured' => $request->is_featured,
+//         'is_hidden' => $request->is_hidden,
+//         'image' => $imagePath,
+//     ]);
+//     // حفظ الميزات
+//     if ($request->features) {
+//         foreach ($request->features as $feature) {
+//             $product->features()->create([
+//                 'name' => $feature
+//             ]);
+//         }
+//     }
+
+//     return response()->json($product, 201);
+// }
 /* ==============================
     Update Hidden Status (Admin)
     ================================*/
@@ -79,22 +139,20 @@ public function updateHiddenStatus(Request $request, $id)
 /* ==============================
     Update Product (Admin)
     ================================*/
-public function update(Request $request, $id)
+    public function update(Request $request, $id)
 {
-        $request->validate([
+    $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
         'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
-        'images' => 'nullable|image|max:2048',
+        'images.*' => 'nullable|image|max:2048',
         'features' => 'nullable|array'
     ]);
-    $product = Product::findOrFail($id);
-    $imagePath = $product->image;
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')
-            ->store('products', 'public');
-    }
+
+    $product = Product::with('images')->findOrFail($id);
+
+    // تحديث البيانات
     $product->update([
         'name' => $request->name,
         'slug' => $request->slug,
@@ -106,10 +164,77 @@ public function update(Request $request, $id)
         'category_id' => $request->category_id,
         'is_featured' => $request->is_featured,
         'is_hidden' => $request->is_hidden,
-        'images' => $imagePath,
     ]);
-    return response()->json($product);
+
+    // إذا تم رفع صور جديدة
+    if ($request->hasFile('images')) {
+
+        // حذف الصور القديمة من Cloudinary
+        foreach ($product->images as $image) {
+
+            if ($image->public_id) {
+
+                Cloudinary::destroy($image->public_id);
+
+            }
+
+            $image->delete();
+        }
+
+        // رفع الصور الجديدة
+        foreach ($request->file('images') as $index => $file) {
+
+            $uploaded = Cloudinary::upload(
+                $file->getRealPath(),
+                [
+                    'folder' => 'products'
+                ]
+            );
+
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_url' => $uploaded->getSecurePath(),
+                'public_id' => $uploaded->getPublicId(),
+                'is_primary' => $index === 0
+            ]);
+        }
+    }
+
+    return response()->json(
+        $product->load('images')
+    );
 }
+// public function update(Request $request, $id)
+// {
+//         $request->validate([
+//         'name' => 'required|string|max:255',
+//         'description' => 'nullable|string',
+//         'quantity' => 'required|integer|min:0',
+//         'category_id' => 'required|exists:categories,id',
+//         'images' => 'nullable|image|max:2048',
+//         'features' => 'nullable|array'
+//     ]);
+//     $product = Product::findOrFail($id);
+//     $imagePath = $product->image;
+//     if ($request->hasFile('image')) {
+//         $imagePath = $request->file('image')
+//             ->store('products', 'public');
+//     }
+//     $product->update([
+//         'name' => $request->name,
+//         'slug' => $request->slug,
+//         'description' => $request->description,
+//         'price' => $request->price,
+//         'sale_price' => $request->sale_price,
+//         'sku' => $request->sku,
+//         'quantity' => $request->quantity,
+//         'category_id' => $request->category_id,
+//         'is_featured' => $request->is_featured,
+//         'is_hidden' => $request->is_hidden,
+//         'images' => $imagePath,
+//     ]);
+//     return response()->json($product);
+// }
 /* ==============================
     Delete Product (Admin)
     ================================*/

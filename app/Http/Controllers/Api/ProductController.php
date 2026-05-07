@@ -9,6 +9,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Category;
 use App\Models\ProductImage;
 use App\Models\Wishlist;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Configuration\Configuration;
 use Illuminate\Support\Facades\DB;
