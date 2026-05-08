@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
@@ -77,6 +78,8 @@ Route::get('/best-selling', [ProductController::class,'bestSelling']);
 
 // Profile routes (protected by auth:sanctum middleware)
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/paystack/pay', [PaymentController::class, 'pay']);
+    Route::get('/paystack/verify/{reference}', [PaymentController::class, 'verify']);
     Route::get('/profile', [ProfileController::class,'show']);
     Route::put('/profile', [ProfileController::class,'update']);
     Route::put('/profile/password', [ProfileController::class,'updatePassword']);
