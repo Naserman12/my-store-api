@@ -24,7 +24,7 @@ class ProductResource extends JsonResource
              // 👇 عرض كل الصور
             'images' => $this->images->map(fn($img) => [
                 'id' => $img->id,
-                'url' => $img->image_url,
+                'image_url' => $img->image_url,
                 'public_id' => $img->public_id,
                 'is_primary' => $img->is_primary,
             ]),
