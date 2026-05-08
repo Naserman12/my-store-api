@@ -93,25 +93,22 @@
         <div class="item">
 
             <!-- صورة المنتج -->
-            <img src="{{ $item->product->images[0]->url ?? 'https://via.placeholder.com/70' }}" alt="صورة المنتج">
+            <img src="{{ $item->product->images[0]->image_url ?? 'https://via.placeholder.com/70' }}" alt="صورة المنتج">
 
             <div class="item-details">
                 <p><strong>{{ $item->product_name }}</strong></p>
                 <p>الكمية: {{ $item->quantity }}</p>
                 <p>السعر: {{ $item->unit_price }} ر.س</p>
             </div>
-
             <div>
                 <strong>{{ $item->total_price }} ر.س</strong>
             </div>
 
         </div>
     @endforeach
-
     <div class="total-box">
         الإجمالي النهائي: {{ $order->total }} ر.س
     </div>
-
 </div>
 
 </body>
