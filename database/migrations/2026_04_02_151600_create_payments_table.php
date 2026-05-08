@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('payment_method',50)->nullable();
             $table->string('transaction_id')->nullable();
             $table->decimal('amount',10,2);
+            $table->string('reference')->unique();
             $table->enum('status',['pending','paid','failed','refunded'])
                   ->default('pending');
             $table->timestamp('paid_at')->nullable();
