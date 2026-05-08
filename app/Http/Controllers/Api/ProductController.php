@@ -238,14 +238,14 @@ $products = DB::table('products')
         'products.id',
         'products.name',
         'products.price',
-        'products.image',
+        'products.images',
         DB::raw('COALESCE(SUM(order_items.quantity), 0) AS total_sold')
     )
     ->groupBy(
         'products.id',
         'products.name',
         'products.price',
-        'products.image'
+        'products.images'
     )
     ->orderByDesc('total_sold')
     ->limit(5)
