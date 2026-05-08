@@ -39,7 +39,10 @@ private function getOrCreateCart(Request $request)
 // ===============================
 public function index(Request $request){
             $cart = $this->getOrCreateCart($request);
-            $cartItems = CartItem::with(['product', 'products.images'])
+            $cartItems = CartItem::with([
+            'product', 
+            'product.images'
+            ])
             ->where('cart_id', $cart->id)
             ->get();
             $total = $cartItems->sum(function ($item) {

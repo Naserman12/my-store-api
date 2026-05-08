@@ -95,7 +95,7 @@ class ProductController extends Controller
     {
           $categories = Category::with([
         'products' => fn($q) => $q->where('is_hidden', 0),
-        'products.images'
+        'products.images',
         ])->get();
         // $categories = Category::with('products', 'products.images')->get();
         return response()->json(['data' => ['categories' => $categories]]);
