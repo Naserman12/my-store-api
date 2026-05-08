@@ -142,6 +142,7 @@ public function checkout(Request $request)
         'status' => 'pending',
         'payment_method' => $request->payment_method,
         'amount' => $order->total,
+        'reference' => $order->order_number,
          ]);
        if ($user) {
        sendNotification(

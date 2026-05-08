@@ -18,7 +18,7 @@ class PaymentController extends Controller
     $reference = 'PAY-' . uniqid();
 
     // خزّنه في جدول الدفع
-    $order->payment()->create([
+    $order->payment()->update([
         'amount' => $order->total,
         'status' => 'pending',
         'reference' => $reference,
