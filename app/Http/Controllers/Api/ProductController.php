@@ -23,8 +23,8 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query()
-            ->with(['category','images',])
-            ->where('is_hidden', false);
+            ->with('category')
+            ->with('images');
 
         /* ========= SEARCH ========= */
 
@@ -70,7 +70,7 @@ class ProductController extends Controller
             'category',
             'images',
             'features'
-        ])->where('is_hidden', false)->take(5)->get();
+        ])->where('is_hidden', 0)->take(5)->get();
 
         return $product;
     }
@@ -93,7 +93,11 @@ class ProductController extends Controller
     =============================== */
     public function getCategoriesWithProducts()
     {
-        $categories = Category::with('products', 'products.images')->get();
+          $categories = Category::with([
+        'products' => fn($q) => $q->where('is_hidden', 0),
+        'products.images'
+        ])->get();
+        // $categories = Category::with('products', 'products.images')->get();
         return response()->json(['data' => ['categories' => $categories]]);
     }
     /* ===============================
@@ -231,21 +235,19 @@ public function getWishlist(Request $request)
 // الاعلى مبييعا
 public function bestSelling()
 {
-$products = DB::table('products')
+$products = Product::with('images')
     ->leftJoin('order_items', 'order_items.product_id', '=', 'products.id')
     ->where('products.is_hidden', 0)
     ->select(
         'products.id',
         'products.name',
         'products.price',
-        'products.images',
         DB::raw('COALESCE(SUM(order_items.quantity), 0) AS total_sold')
     )
     ->groupBy(
         'products.id',
         'products.name',
         'products.price',
-        'products.images'
     )
     ->orderByDesc('total_sold')
     ->limit(5)

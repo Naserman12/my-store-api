@@ -21,9 +21,13 @@ class ProductResource extends JsonResource
 
             'category' => $this->category?->name,
 
-            'image' => $this->images
-                ->where('is_primary', true)
-                ->first()?->image_url,
+             // 👇 عرض كل الصور
+            'images' => $this->images->map(fn($img) => [
+                'id' => $img->id,
+                'url' => $img->image_url,
+                'public_id' => $img->public_id,
+                'is_primary' => $img->is_primary,
+            ]),
 
             'is_featured' => $this->is_featured,
 
