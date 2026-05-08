@@ -20,7 +20,10 @@ class PaystackService
                 'currency' => 'NGN',
                 'verify' => false,
                 'callback_url' =>
-                'https://my-store-2f36e.web.app/payment-success'
+                'https://my-store-2f36e.web.app/payment-success',
+                'metadata' => [
+                'cancel_action' => 'https://my-store-2f36e.web.app/payment-failed'
+            ]
             ]
         );
 

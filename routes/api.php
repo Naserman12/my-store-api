@@ -80,6 +80,7 @@ Route::get('/best-selling', [ProductController::class,'bestSelling']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/paystack/pay', [PaymentController::class, 'pay']);
     Route::get('/paystack/verify/{reference}', [PaymentController::class, 'verify']);
+    Route::post('/paystack/webhook', [PaymentController::class, 'webhook']);
     Route::get('/profile', [ProfileController::class,'show']);
     Route::put('/profile', [ProfileController::class,'update']);
     Route::put('/profile/password', [ProfileController::class,'updatePassword']);
