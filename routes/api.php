@@ -47,7 +47,7 @@ Route::delete('/{id}', [CartController::class, 'remove']);
 Route::delete('/clear', [CartController::class, 'clear']);
 });
 // Admin routes (protected by auth:sanctum and admin middleware)
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/products', [AdminProductController::class,'index']);
     Route::post('/products', [AdminProductController::class,'store']);
     Route::put('/products/{id}', [AdminProductController::class,'update']);
