@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             WishlistsTableSeeder::class,
             OrdersTableSeeder::class,
             OrderItemsTableSeeder::class,
+            PaymentMethodSeeder::class,
         ]);
         User::factory()->create([
             'name' => 'Test User',
