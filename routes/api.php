@@ -49,7 +49,7 @@ Route::delete('/{id}', [CartController::class, 'remove']);
 Route::delete('/clear', [CartController::class, 'clear']);
 });
 // Admin routes (protected by auth:sanctum and admin middleware)
-Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/products', [AdminProductController::class,'index']);
     Route::post('/products', [AdminProductController::class,'store']);
     Route::put('/products/{id}', [AdminProductController::class,'update']);
@@ -61,29 +61,29 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('/orders/latest', [AdminOrderController::class, 'latest']);
     Route::patch('/orders/{order}', [AdminOrderController::class, 'updateStatus']);
     Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
-    Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
     Route::put('/admin/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'update']);
     });
-// Category route
-Route::get('/categories', [ProductController::class, 'GetCategories']);
-Route::get('/category/{id}', [ProductController::class, 'getCategory']);
-Route::get('/categories/{categoryId}/products', [ProductController::class, 'getCategoryProducts']);
-Route::get('/categories-with-products', [ProductController::class, 'getCategoriesWithProducts']);
+    // Category route
+    Route::get('/categories', [ProductController::class, 'GetCategories']);
+    Route::get('/category/{id}', [ProductController::class, 'getCategory']);
+    Route::get('/categories/{categoryId}/products', [ProductController::class, 'getCategoryProducts']);
+    Route::get('/categories-with-products', [ProductController::class, 'getCategoriesWithProducts']);
+    
+    // Checkout route
+    // Route::post('/checkout', [CheckoutController::class,'checkout']);
+    // Product routes
+    Route::get('/products', [ProductController::class,'index']);
+    Route::get('/products/{id}', [ProductController::class,'show']);
+    Route::get('/last-added', [ProductController::class,'lastAdded']);
+    Route::get('/best-selling', [ProductController::class,'bestSelling']);
 
-// Checkout route
-// Route::post('/checkout', [CheckoutController::class,'checkout']);
-// Product routes
-Route::get('/products', [ProductController::class,'index']);
-Route::get('/products/{id}', [ProductController::class,'show']);
-Route::get('/last-added', [ProductController::class,'lastAdded']);
-Route::get('/best-selling', [ProductController::class,'bestSelling']);
-
-
-// Profile routes (protected by auth:sanctum middleware)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/paystack/pay', [PaymentController::class, 'pay']);
-    Route::get('/paystack/verify/{reference}', [PaymentController::class, 'verify']);
-    Route::post('/paystack/webhook', [PaymentController::class, 'webhook']);
+    
+    // Profile routes (protected by auth:sanctum middleware)
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::post('/paystack/pay', [PaymentController::class, 'pay']);
+        Route::get('/paystack/verify/{reference}', [PaymentController::class, 'verify']);
+        Route::post('/paystack/webhook', [PaymentController::class, 'webhook']);
+        Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
     Route::get('/profile', [ProfileController::class,'show']);
     Route::put('/profile', [ProfileController::class,'update']);
     Route::put('/profile/password', [ProfileController::class,'updatePassword']);
