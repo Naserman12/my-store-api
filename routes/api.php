@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Admin\AdminProductController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminOrderController;
+use App\Http\Controllers\Api\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ProductController;
@@ -61,6 +62,8 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/orders/latest', [AdminOrderController::class, 'latest']);
     Route::patch('/orders/{order}', [AdminOrderController::class, 'updateStatus']);
     Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
+    Route::get('/payment-methods', [AdminPaymentMethodController::class, 'index']);
+    Route::post('/payment-methods', [AdminPaymentMethodController::class, 'store']);
     Route::put('/admin/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'update']);
     });
     // Category route
