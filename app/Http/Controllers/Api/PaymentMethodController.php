@@ -22,4 +22,5 @@ class PaymentMethodController extends Controller
             'message' => 'updated'
         ]);
     }
+    
 }
