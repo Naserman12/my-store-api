@@ -150,7 +150,7 @@ public function checkout(Request $request)
             );
         }
         // 🔥 تفريغ السلة بعد إنشاء الطلب
-    //    $cart->items()->delete();
+       $cart->items()->delete();
         DB::commit();
 
         return response()->json([
