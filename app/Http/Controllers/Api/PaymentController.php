@@ -10,29 +10,47 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function pay(Request $request, PaystackService $paystack)
-{
+    public function pay(Request $request, PaystackService $paystack){
     $order = Order::findOrFail($request->order_id);
 
     // 🔥 أنشئ reference خاص بالدفع
     $reference = 'PAY-' . uniqid();
 
-    // خزّنه في جدول الدفع
-    $order->payment()->update([
-        'amount' => $order->total,
-        'status' => 'pending',
-        'reference' => $reference,
-        'payment_method' => $request->payment_method,
-    ]);
-
-    // Paystack يحتاج amount * 100
-    $payment = $paystack->initializePayment(
-        $order->customer_email,
-        $order->total * 100,
-        $reference
-    );
-
-    return response()->json($payment);
+    if ($request->payment_method === 'paystack') {
+        // خزّنه في جدول الدفع
+        $order->payment()->update([
+            'amount' => $order->total,
+            'status' => 'pending',
+            'reference' => $reference,
+            'payment_method' => $request->payment_method,
+        ]);
+    
+        // Paystack يحتاج amount * 100
+        $payment = $paystack->initializePayment(
+            $order->customer_email,
+            $order->total * 100,
+            $reference
+        );
+            
+        return response()->json([
+            'status' => true,
+            'authorization_url' => $payment['data']['authorization_url'],
+            'reference' => $reference
+        ]);
+    }
+     // 🟡 الدفع عند الاستلام
+    if ($request->payment_method === 'cash') {
+        $order->update(['status' => 'pending_payment']);
+        return response()->json([
+            'status' => true,
+            'message' => 'تم تأكيد الطلب وسيتم الدفع عند الاستلام'
+        ]);
+    }
+        // ❌ طرق غير مفعلة
+    return response()->json([
+        'status' => false,
+        'message' => 'طريقة الدفع غير مفعلة حالياً'
+    ], 400);
 }
 public function verify($reference, PaystackService $paystack)
 {

@@ -77,11 +77,10 @@ public function checkout(Request $request)
         }
         $customerPhone = $data['customer_phone'];
 
-        // المستخدم مسجل دخول دائمًا حسب كلامك
+        // المستخدم مسجل دخول 
         if ($user) {
-
             // إذا المستخدم ما عنده رقم جوال سابق → خزّن الرقم في users + العناوين
-            if (!$user->phone) {
+            if (!$user->phone && $customerPhone) {
                 $user->update(['phone' => $customerPhone]);
                 $savePhoneToAddress = true;
             }
@@ -92,7 +91,6 @@ public function checkout(Request $request)
             }
 
         } else {
-            // حسب كلامك: هذا السيناريو غير موجود
             $savePhoneToAddress = true;
         }
 
