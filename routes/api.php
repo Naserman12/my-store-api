@@ -50,7 +50,7 @@ Route::delete('/{id}', [CartController::class, 'remove']);
 Route::delete('/clear', [CartController::class, 'clear']);
 });
 // Admin routes (protected by auth:sanctum and admin middleware)
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::get('/products', [AdminProductController::class,'index']);
     Route::post('/products', [AdminProductController::class,'store']);
     Route::put('/products/{id}', [AdminProductController::class,'update']);
@@ -82,7 +82,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 
     
     // Profile routes (protected by auth:sanctum middleware)
-    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::post('/paystack/pay', [PaymentController::class, 'pay']);
         Route::get('/paystack/verify/{reference}', [PaymentController::class, 'verify']);
         Route::post('/paystack/webhook', [PaymentController::class, 'webhook']);
